@@ -8,7 +8,7 @@ https://esa2024.org.au/
 
 #### 13th December, 2024
 
-## COURSE OVERVIEW
+## WORKSHOP OVERVIEW
 Time series analysis and forecasting are standard goals in applied ecology. In this course, you will learn how to wrangle, visualise and explore ecological time series. You will also learn to use the {`mvgam`} package to analyse a diversity of ecological time series to gain useful insights and produce accurate forecasts.
 
 This workshop will cover:
