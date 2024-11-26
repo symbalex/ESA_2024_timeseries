@@ -107,6 +107,6 @@ If you run into any of these issues, it is best to consult with your IT departme
 <br>
 [Lecture slides](https://nicholasjclark.github.io/physalia-forecasting-course/day1/lecture_1_slidedeck) 
 <br>
-[Live code example 1](https://raw.githubusercontent.com/nicholasjclark/physalia-forecasting-course/main/day1/live_code_examples/live_1_randomeffects.R)
+[Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy1_kestrel.R)
 <br>
-[Live code example 1](https://raw.githubusercontent.com/nicholasjclark/physalia-forecasting-course/main/day1/live_code_examples/live_1_randomeffects.R)
+[Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy2_aphids.R)
