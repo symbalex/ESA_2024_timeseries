@@ -272,7 +272,7 @@ get_mvgam_priors(formula = adj_count ~ series,
                    gp(year, k = 32, scale = FALSE) + 
                    gp(year, by = trend,
                       k = 20, scale = FALSE) - 1,
-                 trend_model = AR(),
+                 trend_model = AR(cor = TRUE),
                  data = model_data,
                  family = Gamma())
 mod2 <- mvgam(
@@ -285,9 +285,8 @@ mod2 <- mvgam(
     gp(year, by = trend,
        k = 20, scale = FALSE) - 1,
   
-  # Additional autoregressive dynamics (using a noncentred AR(1))
-  trend_model = AR(),
-  noncentred = TRUE,
+  # Additional autoregressive dynamics (using a correlated AR(1))
+  trend_model = AR(cor = TRUE),
   
   # Updated prior distributions using brms::prior()
   priors = c(prior(beta(3, 10),
@@ -350,6 +349,10 @@ mcmc_plot(mod2,
           variable = 'alpha_gp',
           regex = TRUE,
           type = 'trace')
+mcmc_plot(mod2,
+          variable = 'Sigma',
+          regex = TRUE,
+          type = 'hist')
 
 # If you wanted to pull these out and do something with them
 head(as.matrix(mod2,
@@ -560,3 +563,6 @@ sum(score(fcsvar,
           score = 'energy')$all_series$score)
 sum(score(ens,
           score = 'energy')$all_series$score)
+
+# Perhaps the VAR1 isn't capturing the nonlinear trends as well
+# as the hierarchical GPs; but we could easily combine the two!
