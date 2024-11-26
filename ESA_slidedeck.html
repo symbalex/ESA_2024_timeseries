@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Ecological Time Series Analysis and Forecasting in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Nicholas Clark" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/panelset/panelset.css" rel="stylesheet" />
+    <script src="libs/panelset/panelset.js"></script>
+    <link href="libs/animate.css/animate.xaringan.css" rel="stylesheet" />
+    <script src="libs/clipboard/clipboard.min.js"></script>
+    <link href="libs/xaringanExtra-clipboard/xaringanExtra-clipboard.css" rel="stylesheet" />
+    <script src="libs/xaringanExtra-clipboard/xaringanExtra-clipboard.js"></script>
+    <script>window.xaringanExtraClipboard(null, {"button":"Copy Code","success":"Copied!","error":"Press Ctrl+C to Copy"})</script>
+    <link href="libs/tile-view/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view/tile-view.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: inverse, middle, left, my-title-slide, title-slide
+
+.title[
+# Ecological Time Series Analysis and Forecasting in R
+]
+.author[
+### Nicholas Clark
+]
+.institute[
+### School of Veterinary Science, University of Queensland, Australia
+]
+.date[
+### Friday 13th December, 2024
+]
+
+---
+
+class: middle center
+
+
+<style>.panelset{--panel-tab-foreground: #8F2727;--panel-tab-inactive-opacity: 0.8;}</style>
+
+
+
+
+
+
+
+
+
+# Welcome
+
+???
+---
+
+## Workflow
+
+
+Press the "o" key on your keyboard to navigate among html slides
+
+Access the [workshop materials here](https://nicholasjclark.github.io/physalia-forecasting-course/day1/tutorial_1_physalia)
+- Download the data objects and exercise `R` script from the html file
+- Complete exercises and use the [Hedgedoc]() to ask questions
+
+Relevant open-source materials include:
+- [Forecasting Principles and Practice](https://otexts.com/fpp3/)
+- [Applied Time Series Analysis](https://atsa-es.github.io/atsa-labs/)
+- [Ecological Forecasting &amp; Dynamics Course](https://github.com/nicholasjclark/physalia-forecasting-course/tree/main)
+- [A blog on how to use and interpret GAMs](https://ecogambler.netlify.app/blog/)
+
+---
+
+## This workshop's topics
+
+Introductions
+
+Why are time series difficult?
+
+Common time series models
+
+Why they fail in ecology
+
+State-Space GAMs and the `mvgam` 📦
+
+---
+
+class: inverse middle center big-subsection
+
+# Tell us about yourself
+
+---
+
+## Some challenges of time series 
+Temporal autocorrelation 
+
+Lagged effects
+
+Non-Gaussian data and missing observations 
+
+Measurement error
+
+Time-varying effects
+
+Nonlinearities
+
+Multi-series clustering
+
+---
+
+## A *positively* autocorrelated series
+.panelset[
+.panel[.panel-name[Code]
+
+
+
+
+```r
+# set seed for reproducibility
+set.seed(1111)
+
+# number of timepoints
+T &lt;- 100
+
+# use arima.sim to simulate from an AR(1) model
+series &lt;- arima.sim(model = list(ar = 0.8), n = T, sd = 1)
+
+# plot the time series as a line
+plot(series, type = 'l', bty = 'l', lwd = 2, 
+     col = 'darkred', ylab = 'Y', xlab = 'Time')
+```
+]
+
+.panel[.panel-name[Model]
+`$$\boldsymbol{Y}_{t}\sim \text{Normal}(\color{darkred}{0.8} * \boldsymbol{Y}_{t-1},\color{darkred}{1})$$`
+]
+
+.panel[.panel-name[Plot]
+.center[![](ESA_slidedeck_files/figure-html/ar_sim-1.svg)]
+
+]
+]
+
+---
+
+## A *negatively* autocorrelated series
+.panelset[
+.panel[.panel-name[Code]
+
+
+
+
+```r
+# set seed for reproducibility
+set.seed(1111)
+
+# number of timepoints
+T &lt;- 100
+
+# use arima.sim to simulate from an AR(1) model
+series &lt;- arima.sim(model = list(ar = -0.8), n = T, sd = 1)
+
+# plot the time series as a line
+plot(series, type = 'l', bty = 'l', lwd = 2, 
+     col = 'darkred', ylab = 'Y', xlab = 'Time')
+```
+]
+
+.panel[.panel-name[Model]
+`$$\boldsymbol{Y}_{t}\sim \text{Normal}(\color{darkred}{-0.8} * \boldsymbol{Y}_{t-1},\color{darkred}{1})$$`
+]
+
+.panel[.panel-name[Plot]
+.center[![](ESA_slidedeck_files/figure-html/ar_simneg-1.svg)]
+
+]
+]
+
+---
+
+class: full-size
+
+## Seasonality
+.pull-right-bigger[![Lynx](resources/canada-lynx-gary-pritts.jpg)]
+
+
+Many time series show .emphasize[*repeated periodic cycles*]
+- Breeding seasons
+- Migration
+- Green-ups / green-downs
+- Lunar cycles
+- Predator / prey dynamics
+
+Often change slowly over time
+
+---
+
+## Example seasonal series
+&lt;img src="ESA_slidedeck_files/figure-html/unnamed-chunk-3-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Decompose: trend + seasonality
+&lt;img src="ESA_slidedeck_files/figure-html/unnamed-chunk-4-1.svg" style="display: block; margin: auto;" /&gt;
+---
+
+class: middle center
+### Modelling these multiple components, either additively or multiplicatively, is a major goal of most time series analysis procedures
+
+---
+
+## Common time series models
+Random Walk ([RW](https://atsa-es.github.io/atsa-labs/sec-tslab-random-walks-rw.html))
+
+Autoregressive ([AR](https://atsa-es.github.io/atsa-labs/sec-tslab-autoregressive-ar-models.html)) 
+
+Autoregressive Integrated Moving Average ([ARIMA](https://otexts.com/fpp3/arima.html); require [stationarity](https://otexts.com/fpp3/stationarity.html))
+
+Exponential Smoothing ([ETS](https://otexts.com/fpp3/expsmooth.html))
+
+[Regression with ARIMA errors](https://otexts.com/fpp3/regarima.html)
+
+---
+
+## *Very* easy to apply in <svg aria-hidden="true" role="img" viewBox="0 0 581 512" style="height:1em;width:1.13em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:steelblue;overflow:visible;position:relative;"><path d="M581 226.6C581 119.1 450.9 32 290.5 32S0 119.1 0 226.6C0 322.4 103.3 402 239.4 418.1V480h99.1v-61.5c24.3-2.7 47.6-7.4 69.4-13.9L448 480h112l-67.4-113.7c54.5-35.4 88.4-84.9 88.4-139.7zm-466.8 14.5c0-73.5 98.9-133 220.8-133s211.9 40.7 211.9 133c0 50.1-26.5 85-70.3 106.4-2.4-1.6-4.7-2.9-6.4-3.7-10.2-5.2-27.8-10.5-27.8-10.5s86.6-6.4 86.6-92.7-90.6-87.9-90.6-87.9h-199V361c-74.1-21.5-125.2-67.1-125.2-119.9zm225.1 38.3v-55.6c57.8 0 87.8-6.8 87.8 27.3 0 36.5-38.2 28.3-87.8 28.3zm-.9 72.5H365c10.8 0 18.9 11.7 24 19.2-16.1 1.9-33 2.8-50.6 2.9v-22.1z"/></svg>
+
+&lt;img src="resources/fc_logo.png" style="position:fixed; right:8%; top:4%; width:100px; height:117px; border:none;" /&gt;
+
+
+
+Tools in the [`forecast` 📦](https://pkg.robjhyndman.com/forecast/) are hugely popular and accessible for time series analysis / forecasting 
+  
+[ETS](https://pkg.robjhyndman.com/forecast/reference/ets.html) handles many types of seasonality and nonlinear trends 
+  
+[Regression with ARIMA errors](https://pkg.robjhyndman.com/forecast/reference/auto.arima.html) includes additive fixed effects of predictors while capturing trends and seasonality
+
+*Some* of these algorithms can handle missing data
+
+*All* are extremely fast to fit and forecast
+
+---
+
+
+## Great! But what about these? 
+.grey[Temporal autocorrelation
+
+
+Lagged effects]
+
+
+.emphasize[*Non-Gaussian data and missing observations*
+
+*Measurement error*
+
+*Time-varying effects*
+
+*Nonlinearities*
+
+*Multi-series clustering*]
+
+---
+
+## Ecological time series include
+Counts of multiple species over time
+
+Presence-absence of species
+
+Repeated captures in multiple plots
+
+Censored measures (OTUs / pollutants with limits of detection) 
+
+Phenology records
+
+Tree rings
+
+etc...
+
+---
+
+## Example ecological time series
+&lt;/br&gt;
+.pull-left[
+&lt;img src="ESA_slidedeck_files/figure-html/unnamed-chunk-5-1.svg" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+&lt;img src="ESA_slidedeck_files/figure-html/unnamed-chunk-6-1.svg" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Another ecological time series
+&lt;/br&gt;
+.pull-left[
+&lt;img src="ESA_slidedeck_files/figure-html/unnamed-chunk-7-1.svg" style="display: block; margin: auto;" /&gt;
+]
+.pull-right[
+&lt;img src="ESA_slidedeck_files/figure-html/unnamed-chunk-8-1.svg" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+## Collections of ecological series
+&lt;img src="ESA_slidedeck_files/figure-html/unnamed-chunk-9-1.svg" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse white-subsection
+background-image: url('./resources/bwbirds.jpeg')
+background-size: cover
+
+## All can have measurement error
+
+---
+
+class: inverse middle center big-subsection
+
+# How can we do better?
+
+---
+
+background-image: url('./resources/SS_model.svg')
+## State-Space models
+
+---
+
+## State-Space models
+&lt;/br&gt;
+&lt;img align="center" width="1200" height="300" src="resources/auger.jpg"&gt;
+
+
+.small[[Auger-Methe *et al* 2021](https://esajournals.onlinelibrary.wiley.com/doi/10.1002/ecm.1470)]
+
+---
+
+## State-Space linear models
+
+`\begin{align*}
+Y_t &amp; \sim Normal(\alpha + \sum_{j=1}^{J}(\beta_j x_{jt}) + Zz_t, \sigma_y) \\
+z_t &amp; \sim Normal(\sum_{k=1}^{K}(\beta_k q_{kt}), \sigma_z) 
+\end{align*}`
+
+
+&lt;br/&gt;
+Where: 
+- `\(\beta_j\)` capture linear effects of the `\(J\)` observation model predictors
+- `\(z_t\)` is a .emphasize[*latent process*], weighted by a loading matrix `\(Z\)`
+- `\(\beta_k\)` capture linear effects of the `\(K\)` process model predictors
+
+---
+background-image: url('./resources/df_with_series.gif')
+## *Z* &amp;#8680; induced correlations
+
+---
+
+# Linear!?!
+
+Linear observation models won't give sensible predictions for bounded / discrete / non-Normal data
+
+We can do better by choosing observation distributions that obey the constraints on our outcome variables
+
+.emphasize[*Generalizes*] the linear regression by replacing parameters from other probability distributions with linear models
+
+`\(\alpha + \sum_{j=1}^{J}(\beta_j x_{jt}) + Zz_t\)` &amp;#8680; `\(g^{-1}(\alpha + \sum_{j=1}^{J}(\beta_j x_{jt}) + Zz_t)\)`
+
+`\(g^{-1}\)` is the inverse of a nonlinear .emphasize[*link function*]
+---
+
+## Many relevant distributions
+
+[Many useful GLM probability distributions exist](https://cran.r-project.org/web/packages/brms/vignettes/brms_families.html). Some of these include:
+- .emphasize[*Negative Binomial*] &amp;mdash; overdispersed integers in `\((0,1,2,...)\)`
+- .emphasize[*Bernoulli*] &amp;mdash; presence-absence data in `\(\{0,1\}\)`
+- .emphasize[*Student's T*] &amp;mdash; heavy-tailed (skewed) real values in `\((-\infty, \infty)\)` 
+- .emphasize[*Lognormal*] &amp;mdash; heavy-tailed (right skewed) real values in `\((0, \infty)\)` 
+- .emphasize[*Gamma*] &amp;mdash; lighter-tailed (less skewed) real values in `\((0, \infty)\)` 
+- .emphasize[*Multinomial*] &amp;mdash; integers representing `\(K\)` unordered categories in `\((0,1,..., K)\)`
+- .emphasize[*Ordinal*] &amp;mdash; integers representing `\(K\)` ordered categories in `\((0,1,..., K)\)`
+
+---
+class: middle center
+
+### State-Space GLMs allow us to build models that respect the bounds and distributions of our observed data
+&lt;br&gt;
+### They traditionally assume the appropriately transformed mean response depends *linearly* on the predictors, as well as on the latent states
+&lt;br&gt;
+### But there are many other properties we'd like to model, including nonlinearities. Time to get .multicolor[W I G G L Y]
+---
+background-image: url('./resources/smooth_only.gif')
+## GAMs use splines ...
+
+
+
+---
+
+background-image: url('./ESA_slidedeck_files/figure-html/basis-functions-1.svg')
+## ... made of basis functions
+
+
+---
+
+
+background-image: url('./resources/basis-functions-weights-1.svg')
+## Weighting basis functions ...
+
+---
+
+background-image: url('./resources/basis_weights.gif')
+## ... gives a spline `\((f(x))\)`
+
+---
+
+background-image: url('./resources/smooth_to_data.gif')
+## Penalize `\(f"(x)\)` to learn weights
+
+
+
+---
+
+background-image: url('./ESA_slidedeck_files/figure-html/complexity-1.svg')
+
+---
+
+## State-Space GAMs
+
+`\begin{align*}
+\mathbb{E}(\boldsymbol{Y_t}|\boldsymbol{X_t}, \boldsymbol{Q_t}) &amp; = g^{-1}(\alpha + \sum_{j=1}^{J}f(x_{jt}) + Zz_t) \\
+z_t &amp; \sim Normal(\sum_{k=1}^{K}f(q_{kt}), \sigma_z) 
+\end{align*}`
+
+
+&lt;br/&gt;
+Where: 
+- `\(f(x)\)` are potentially nonlinear functions of the `\(J\)` predictors
+- `\(z_t\)` is a .emphasize[*latent process*], weighted by a loading matrix `\(Z\)`
+- `\(f(q)\)` are potentially nonlinear functions of the `\(K\)` predictors
+
+---
+
+class: inverse middle center big-subsection
+
+# Questions?
+
+---
+
+&lt;img src="resources/mvgam_logo.png" style="position:fixed; right:8%; top:4%; width:100px; height:117px; border:none;" /&gt;
+## The [`mvgam` 📦](https://github.com/nicholasjclark/mvgam/tree/master)
+
+Bayesian framework to fit State-Space GAMs
+- Hierarchical intercepts, slopes, smooths and Gaussian Processes
+- Learning `\(Z\)` &amp;#8680; JSDMs, N-mixture models, Dynamic Factors
+
+Built off [`mgcv`](https://cran.r-project.org/web/packages/mgcv/index.html), [`brms` ](https://paulbuerkner.com/brms/) and [`splines2`](https://cran.r-project.org/web/packages/splines2/index.html) 📦's for flexible effects
+
+Familiar <svg aria-hidden="true" role="img" viewBox="0 0 581 512" style="height:1em;width:1.13em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:steelblue;overflow:visible;position:relative;"><path d="M581 226.6C581 119.1 450.9 32 290.5 32S0 119.1 0 226.6C0 322.4 103.3 402 239.4 418.1V480h99.1v-61.5c24.3-2.7 47.6-7.4 69.4-13.9L448 480h112l-67.4-113.7c54.5-35.4 88.4-84.9 88.4-139.7zm-466.8 14.5c0-73.5 98.9-133 220.8-133s211.9 40.7 211.9 133c0 50.1-26.5 85-70.3 106.4-2.4-1.6-4.7-2.9-6.4-3.7-10.2-5.2-27.8-10.5-27.8-10.5s86.6-6.4 86.6-92.7-90.6-87.9-90.6-87.9h-199V361c-74.1-21.5-125.2-67.1-125.2-119.9zm225.1 38.3v-55.6c57.8 0 87.8-6.8 87.8 27.3 0 36.5-38.2 28.3-87.8 28.3zm-.9 72.5H365c10.8 0 18.9 11.7 24 19.2-16.1 1.9-33 2.8-50.6 2.9v-22.1z"/></svg> formula interface
+
+Uni- or multivariate series from a range of response distributions 
+
+Uses [Stan](https://mc-stan.org/) for efficient Hamiltonian Monte Carlo sampling
+
+---
+
+class: middle center big-subsection
+
+# [Package overview](https://nicholasjclark.github.io/mvgam/articles/mvgam_overview.html)
+
+---
+
+## Example of the interface
+
+
+```r
+model &lt;- mvgam(
+  formula = y ~ 
+    s(series, bs = 're') + 
+    s(x0, series, bs = 're') +
+    x1,
+  trend_formula = ~ gp(x2, k = 20) +
+    te(x3, x4, bs = c('cr', 'tp')),
+  data = data,
+  family = poisson(),
+  trend_model = AR(p = 1, ma = TRUE, cor = TRUE),
+  burnin = 500,
+  samples = 500,
+  chains = 4)
+```
+
+---
+
+## Produce all `Stan` code and objects
+
+```r
+code(model)
+```
+.small[
+
+```
+## // Stan model code generated by package mvgam
+## functions {
+##   /* Spectral density of a squared exponential Gaussian process
+##   * Args:
+##   *   x: array of numeric values of dimension NB x D
+##   *   sdgp: marginal SD parameter
+##   *   lscale: vector of length-scale parameters
+##   * Returns:
+##   *   numeric vector of length NB of the SPD evaluated at 'x'
+##   */
+##   vector spd_gp_exp_quad(data array[] vector x, real sdgp, vector lscale) {
+##     int NB = dims(x)[1];
+##     int D = dims(x)[2];
+##     int Dls = rows(lscale);
+##     real constant = square(sdgp) * sqrt(2 * pi()) ^ D;
+##     vector[NB] out;
+##     if (Dls == 1) {
+##       // one dimensional or isotropic GP
+##       real neg_half_lscale2 = -0.5 * square(lscale[1]);
+##       constant = constant * lscale[1] ^ D;
+##       for (m in 1 : NB) {
+##         out[m] = constant * exp(neg_half_lscale2 * dot_self(x[m]));
+##       }
+##     } else {
+##       // multi-dimensional non-isotropic GP
+##       vector[Dls] neg_half_lscale2 = -0.5 * square(lscale);
+##       constant = constant * prod(lscale);
+##       for (m in 1 : NB) {
+##         out[m] = constant * exp(dot_product(neg_half_lscale2, square(x[m])));
+##       }
+##     }
+##     return out;
+##   }
+## }
+## data {
+##   int&lt;lower=1&gt; k_gp_trend_x2_; // basis functions for approximate gp
+##   array[k_gp_trend_x2_] vector[1] l_gp_trend_x2_; // approximate gp eigenvalues
+##   array[20] int b_trend_idx_gp_x2_; // gp basis coefficient indices
+##   int&lt;lower=0&gt; total_obs; // total number of observations
+##   int&lt;lower=0&gt; n; // number of timepoints per series
+##   int&lt;lower=0&gt; n_sp_trend; // number of trend smoothing parameters
+##   int&lt;lower=0&gt; n_lv; // number of dynamic factors
+##   int&lt;lower=0&gt; n_series; // number of series
+##   matrix[n_series, n_lv] Z; // matrix mapping series to latent states
+##   int&lt;lower=0&gt; num_basis; // total number of basis coefficients
+##   int&lt;lower=0&gt; num_basis_trend; // number of trend basis coefficients
+##   vector[num_basis_trend] zero_trend; // prior locations for trend basis coefficients
+##   matrix[total_obs, num_basis] X; // mgcv GAM design matrix
+##   matrix[n * n_lv, num_basis_trend] X_trend; // trend model design matrix
+##   array[n, n_series] int&lt;lower=0&gt; ytimes; // time-ordered matrix (which col in X belongs to each [time, series] observation?)
+##   array[n, n_lv] int ytimes_trend;
+##   int&lt;lower=0&gt; n_nonmissing; // number of nonmissing observations
+##   matrix[24, 72] S_trend2; // mgcv smooth penalty matrix S_trend2
+##   array[n_nonmissing] int&lt;lower=0&gt; flat_ys; // flattened nonmissing observations
+##   matrix[n_nonmissing, num_basis] flat_xs; // X values for nonmissing observations
+##   array[n_nonmissing] int&lt;lower=0&gt; obs_ind; // indices of nonmissing observations
+## }
+## transformed data {
+##   vector[n_lv] trend_zeros = rep_vector(0.0, n_lv);
+## }
+## parameters {
+##   // gp term sd parameters
+##   real&lt;lower=0&gt; alpha_gp_trend_x2_;
+##   
+##   // gp term length scale parameters
+##   array[1] vector&lt;lower=0&gt;[1] rho_gp_trend_x2_;
+##   
+##   // gp term latent variables
+##   vector[k_gp_trend_x2_] z_gp_trend_x2_;
+##   
+##   // raw basis coefficients
+##   vector[num_basis] b_raw;
+##   vector[num_basis_trend] b_raw_trend;
+##   
+##   // latent state SD terms
+##   vector&lt;lower=0&gt;[n_lv] sigma;
+##   cholesky_factor_corr[n_lv] L_Omega;
+##   
+##   // random effect variances
+##   vector&lt;lower=0&gt;[2] sigma_raw;
+##   
+##   // random effect means
+##   vector[2] mu_raw;
+##   
+##   // latent state AR1 terms
+##   vector&lt;lower=-1, upper=1&gt;[n_lv] ar1;
+##   
+##   // ma coefficients
+##   matrix&lt;lower=-1, upper=1&gt;[n_lv, n_lv] theta;
+##   
+##   // dynamic error parameters
+##   array[n] vector[n_lv] error;
+##   
+##   // smoothing parameters
+##   vector&lt;lower=0&gt;[n_sp_trend] lambda_trend;
+## }
+## transformed parameters {
+##   // latent states and loading matrix
+##   vector[n * n_lv] trend_mus;
+##   matrix[n, n_series] trend;
+##   array[n] vector[n_lv] LV;
+##   array[n] vector[n_lv] epsilon;
+##   
+##   // LKJ form of covariance matrix
+##   matrix[n_lv, n_lv] L_Sigma;
+##   
+##   // computed error covariance matrix
+##   cov_matrix[n_lv] Sigma;
+##   matrix[n_series, n_lv] lv_coefs;
+##   
+##   // basis coefficients
+##   vector[num_basis] b;
+##   vector[num_basis_trend] b_trend;
+##   
+##   // observation model basis coefficients
+##   b[1 : 2] = b_raw[1 : 2];
+##   b[3 : 6] = mu_raw[1] + b_raw[3 : 6] * sigma_raw[1];
+##   b[7 : 10] = mu_raw[2] + b_raw[7 : 10] * sigma_raw[2];
+##   
+##   // process model basis coefficients
+##   b_trend[1 : num_basis_trend] = b_raw_trend[1 : num_basis_trend];
+##   b_trend[b_trend_idx_gp_x2_] = sqrt(spd_gp_exp_quad(l_gp_trend_x2_,
+##                                                      alpha_gp_trend_x2_,
+##                                                      rho_gp_trend_x2_[1]))
+##                                 .* z_gp_trend_x2_;
+##   
+##   // latent process linear predictors
+##   trend_mus = X_trend * b_trend;
+##   
+##   // derived latent states
+##   LV[1] = trend_mus[ytimes_trend[1, 1 : n_lv]] + error[1];
+##   epsilon[1] = error[1];
+##   for (i in 2 : n) {
+##     // lagged error ma process
+##     epsilon[i] = theta * error[i - 1];
+##     
+##     // full ARMA process
+##     LV[i] = trend_mus[ytimes_trend[i, 1 : n_lv]]
+##             + ar1 .* (LV[i - 1] - trend_mus[ytimes_trend[i - 1, 1 : n_lv]])
+##             + epsilon[i] + error[i];
+##   }
+##   L_Sigma = diag_pre_multiply(sigma, L_Omega);
+##   Sigma = multiply_lower_tri_self_transpose(L_Sigma);
+##   lv_coefs = Z;
+##   for (i in 1 : n) {
+##     for (s in 1 : n_series) {
+##       trend[i, s] = dot_product(lv_coefs[s,  : ], LV[i,  : ]);
+##     }
+##   }
+## }
+## model {
+##   // prior for random effect population variances
+##   sigma_raw ~ student_t(3, 0, 2.5);
+##   
+##   // prior for random effect population means
+##   mu_raw ~ std_normal();
+##   
+##   // prior for (Intercept)...
+##   b_raw[1] ~ student_t(3, 0, 2.5);
+##   
+##   // prior for x1B...
+##   b_raw[2] ~ student_t(3, 0, 2);
+##   
+##   // prior (non-centred) for s(series)...
+##   b_raw[3 : 6] ~ std_normal();
+##   
+##   // prior (non-centred) for s(x0,series)...
+##   b_raw[7 : 10] ~ std_normal();
+##   
+##   // priors for AR parameters
+##   ar1 ~ std_normal();
+##   
+##   // priors for latent state SD parameters
+##   sigma ~ student_t(3, 0, 2.5);
+##   
+##   // dynamic process models
+##   
+##   // prior for (Intercept)_trend...
+##   b_raw_trend[1] ~ student_t(3, 0, 2);
+##   
+##   // prior for te(x3,x4)_trend...
+##   b_raw_trend[22 : 45] ~ multi_normal_prec(zero_trend[22 : 45],
+##                                            S_trend2[1 : 24, 1 : 24]
+##                                            * lambda_trend[3]
+##                                            + S_trend2[1 : 24, 25 : 48]
+##                                              * lambda_trend[4]
+##                                            + S_trend2[1 : 24, 49 : 72]
+##                                              * lambda_trend[5]);
+##   
+##   // prior for gp(x2)_trend...
+##   z_gp_trend_x2_ ~ std_normal();
+##   alpha_gp_trend_x2_ ~ student_t(3, 0, 2.5);
+##   rho_gp_trend_x2_[1] ~ inv_gamma(1.494197, 0.056607);
+##   b_raw_trend[b_trend_idx_gp_x2_] ~ std_normal();
+##   lambda_trend ~ normal(5, 30);
+##   
+##   // contemporaneous errors
+##   L_Omega ~ lkj_corr_cholesky(2);
+##   for (i in 1 : n) {
+##     error[i] ~ multi_normal_cholesky(trend_zeros, L_Sigma);
+##   }
+##   
+##   // ma coefficients
+##   for (i in 1 : n_lv) {
+##     for (j in 1 : n_lv) {
+##       if (i != j) {
+##         theta[i, j] ~ normal(0, 0.2);
+##       }
+##     }
+##   }
+##   {
+##     // likelihood functions
+##     vector[n_nonmissing] flat_trends;
+##     flat_trends = to_vector(trend)[obs_ind];
+##     flat_ys ~ poisson_log_glm(append_col(flat_xs, flat_trends), 0.0,
+##                               append_row(b, 1.0));
+##   }
+## }
+## generated quantities {
+##   vector[total_obs] eta;
+##   matrix[n, n_series] mus;
+##   vector[n_sp_trend] rho_trend;
+##   vector[n_lv] penalty;
+##   array[n, n_series] int ypred;
+##   penalty = 1.0 / (sigma .* sigma);
+##   rho_trend = log(lambda_trend);
+##   
+##   // posterior predictions
+##   eta = X * b;
+##   for (s in 1 : n_series) {
+##     mus[1 : n, s] = eta[ytimes[1 : n, s]] + trend[1 : n, s];
+##     ypred[1 : n, s] = poisson_log_rng(mus[1 : n, s]);
+##   }
+## }
+```
+]
+
+---
+## Workflow
+
+
+Fit models that can include splines, GPs, and multivariate dynamic processes to sets of time series; use informative priors for effective regularization
+
+Use posterior predictive checks and Randomized Quantile (Dunn-Smyth) residuals to assess model failures
+
+Use `marginaleffects` 📦 to generate interpretable (and reportable) model predictions
+
+Produce probabilistic forecasts
+
+Evaluate forecast distributions using proper scoring rules 
+---
+class: middle center big-subsection
+
+# [`?mvgam`](https://nicholasjclark.github.io/mvgam/reference/mvgam.html#details)
+
+---
+
+background-image: url('./resources/mvgam_cheatsheet.png')
+background-size: contain
+---
+
+class: inverse middle center big-subsection
+
+# Live code example
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="macros.js"></script>
+<script>var slideshow = remark.create({
+"navigation": {
+"scroll": false
+},
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
