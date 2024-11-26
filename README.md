@@ -55,7 +55,7 @@ update.packages(ask = FALSE, checkBuilt = TRUE)
 
 # packages to install for the course
 pkgs <- c("tidyverse", "gratia", "ggplot2",
-          "marginaleffects", "mvgam")
+          "marginaleffects", "janitor", "mvgam")
 
 # install packages
 install.packages(pkgs)
