@@ -103,7 +103,7 @@ But issues can sometimes occur when:
 If you run into any of these issues, it is best to consult with your IT department for support.
 
 ## WORKSHOP MATERIALS
-[Live questions and code sharing]([ESA_timeseries_2024](https://docs.google.com/document/d/1xd3icf1wxGxO3SVt2AmKO8CkeKv1QpsxgqK7rR15U08/edit?usp=sharing))
+[Live questions and code sharing](https://docs.google.com/document/d/1xd3icf1wxGxO3SVt2AmKO8CkeKv1QpsxgqK7rR15U08/edit?usp=sharing)
 <br>
 [Lecture slides](https://nicholasjclark.github.io/ESA_2024_timeseries/ESA_slidedeck.html#1) 
 <br>
