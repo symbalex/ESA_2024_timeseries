@@ -103,7 +103,8 @@ But issues can sometimes occur when:
 If you run into any of these issues, it is best to consult with your IT department for support.
 
 ## WORKSHOP MATERIALS
-[Live questions and code sharing](ESA_timeseries_2024)
+[Live questions and code sharing]([ESA_timeseries_2024](https://docs.google.com/document/d/1xd3icf1wxGxO3SVt2AmKO8CkeKv1QpsxgqK7rR15U08/edit?usp=sharing))
+<br>
 [Lecture slides](https://nicholasjclark.github.io/physalia-forecasting-course/day1/lecture_1_slidedeck) 
 <br>
 [Live code example 1](https://raw.githubusercontent.com/nicholasjclark/physalia-forecasting-course/main/day1/live_code_examples/live_1_randomeffects.R)
