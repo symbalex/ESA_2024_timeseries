@@ -105,7 +105,7 @@ If you run into any of these issues, it is best to consult with your IT departme
 ## WORKSHOP MATERIALS
 [Live questions and code sharing]([ESA_timeseries_2024](https://docs.google.com/document/d/1xd3icf1wxGxO3SVt2AmKO8CkeKv1QpsxgqK7rR15U08/edit?usp=sharing))
 <br>
-[Lecture slides](https://nicholasjclark.github.io/physalia-forecasting-course/day1/lecture_1_slidedeck) 
+[Lecture slides](https://nicholasjclark.github.io/ESA_2024_timeseries/ESA_slidedeck.html#1) 
 <br>
 [Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy1_kestrel.R)
 <br>
