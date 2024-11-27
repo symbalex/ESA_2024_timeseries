@@ -103,13 +103,24 @@ But issues can sometimes occur when:
 If you run into any of these issues, it is best to consult with your IT department for support.
 
 ## WORKSHOP MATERIALS
-[Live questions and code sharing](https://docs.google.com/document/d/1xd3icf1wxGxO3SVt2AmKO8CkeKv1QpsxgqK7rR15U08/edit?usp=sharing)
+🔎 [Live questions and code sharing](https://docs.google.com/document/d/1xd3icf1wxGxO3SVt2AmKO8CkeKv1QpsxgqK7rR15U08/edit?usp=sharing)
 <br>
-[Lecture slides](https://nicholasjclark.github.io/ESA_2024_timeseries/ESA_slidedeck.html#1) 
+Use this link to access a live Google Doc where we can host questions, relevant `R` code snippets and links of interest during the workshop. Please be aware that anything you post here will be accessible by all workshop participants, so be kind and inclusive 😄
 <br>
-[Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy1_kestrel.R)
 <br>
-[Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy2_aphids.R)
+💹 [Lecture slides](https://nicholasjclark.github.io/ESA_2024_timeseries/ESA_slidedeck.html#1) 
+<br>
+We will begin the workshop by working through a bit of introductory material, which you can follow along with by working through the html slidedeck
+<br>
+<br>
+💻 [Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy1_kestrel.R)
+<br>
+The first example will use a collection of time series of annual, observer-adjusted American kestrel counts
+<br>
+<br>
+💻 [Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy2_aphids.R)
+<br>
+The second example (time permitting) will analyse a set of temporal experimental data monitoring aphid abundance in crop plots
 
 ## OTHER `mvgam` RESOURCES
 
