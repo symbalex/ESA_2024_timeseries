@@ -102,6 +102,11 @@ But issues can sometimes occur when:
 
 If you run into any of these issues, it is best to consult with your IT department for support.
 
+## `mvgam` cheatsheet
+
+[![`mvgam` usage
+cheatsheet](https://github.com/nicholasjclark/mvgam/raw/master/misc/mvgam_cheatsheet.png)](https://github.com/nicholasjclark/mvgam/raw/master/misc/mvgam_cheatsheet.pdf)
+
 ## WORKSHOP MATERIALS
 [Live questions and code sharing](https://docs.google.com/document/d/1xd3icf1wxGxO3SVt2AmKO8CkeKv1QpsxgqK7rR15U08/edit?usp=sharing)
 <br>
