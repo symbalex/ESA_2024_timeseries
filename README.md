@@ -102,11 +102,6 @@ But issues can sometimes occur when:
 
 If you run into any of these issues, it is best to consult with your IT department for support.
 
-## `mvgam` cheatsheet
-
-[![`mvgam` usage
-cheatsheet](https://github.com/nicholasjclark/mvgam/raw/master/misc/mvgam_cheatsheet.png)](https://github.com/nicholasjclark/mvgam/raw/master/misc/mvgam_cheatsheet.pdf)
-
 ## WORKSHOP MATERIALS
 [Live questions and code sharing](https://docs.google.com/document/d/1xd3icf1wxGxO3SVt2AmKO8CkeKv1QpsxgqK7rR15U08/edit?usp=sharing)
 <br>
@@ -115,3 +110,34 @@ cheatsheet](https://github.com/nicholasjclark/mvgam/raw/master/misc/mvgam_cheats
 [Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy1_kestrel.R)
 <br>
 [Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy2_aphids.R)
+
+## OTHER `mvgam` RESOURCES
+
+A series of <a href="https://nicholasjclark.github.io/mvgam/"
+target="_blank">vignettes cover data formatting, forecasting and several
+extended case studies of DGAMs</a>. A number of other examples have also
+been compiled:
+
+- <a href="https://www.youtube.com/watch?v=0zZopLlomsQ"
+  target="_blank">Ecological Forecasting with Dynamic Generalized Additive
+  Models</a>
+- <a href="https://ecogambler.netlify.app/blog/distributed-lags-mgcv/"
+  target="_blank">Distributed lags (and hierarchical distributed lags)
+  using <code>mgcv</code> and <code>mvgam</code></a>
+- <a href="https://ecogambler.netlify.app/blog/vector-autoregressions/"
+  target="_blank">State-Space Vector Autoregressions in
+  <code>mvgam</code></a>
+- <a href="https://www.youtube.com/watch?v=RwllLjgPUmM"
+  target="_blank">Ecological Forecasting with Dynamic GAMs; a tutorial and
+  detailed case study</a>
+- <a href="https://ecogambler.netlify.app/blog/interpreting-gams/"
+  target="_blank">How to interpret and report nonlinear effects from
+  Generalized Additive Models</a>
+- <a href="https://ecogambler.netlify.app/blog/phylogenetic-smooths-mgcv/"
+  target="_blank">Phylogenetic smoothing using <code>mgcv</code></a>
+- <a href="https://ecogambler.netlify.app/blog/time-varying-seasonality/"
+  target="_blank">Incorporating time-varying seasonality in forecast
+  models</a>
+
+[![`mvgam` usage
+cheatsheet](https://github.com/nicholasjclark/mvgam/raw/master/misc/mvgam_cheatsheet.png)](https://github.com/nicholasjclark/mvgam/raw/master/misc/mvgam_cheatsheet.pdf)
