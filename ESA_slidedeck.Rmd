@@ -1,5 +1,5 @@
 ---
-title: "Ecological Time Series Analysis and Forecasting in R"
+title: "Ecological Time Series Analysis and Forecasting"
 institute: "School of Veterinary Science, University of Queensland, Australia"
 author: "Nicholas Clark"
 date: "Friday 13th December, 2024"
@@ -231,7 +231,7 @@ myscatter = function(x,
 Press the "o" key on your keyboard to navigate among html slides
 
 Access the [workshop materials here](https://github.com/nicholasjclark/ESA_2024_timeseries)
-- View the sample `R` scripts in [live_code_examples](https://github.com/nicholasjclark/ESA_2024_timeseries/tree/main/live_code_examples)
+- View the sample `r fontawesome::fa("r-project", fill = "steelblue")` scripts in [live_code_examples](https://github.com/nicholasjclark/ESA_2024_timeseries/tree/main/live_code_examples)
 - Use the [Google Doc](https://docs.google.com/document/d/1xd3icf1wxGxO3SVt2AmKO8CkeKv1QpsxgqK7rR15U08/edit?tab=t.0#heading=h.ds87nag4ykyb) to ask questions
 
 Relevant open-source materials include:
@@ -616,7 +616,7 @@ background-image: url('./resources/SS_model.svg')
 
 \begin{align*}
 Y_t & \sim Normal(\alpha + \sum_{j=1}^{J}(\beta_j x_{jt}) + Zz_t, \sigma_y) \\
-z_t & \sim Normal(\sum_{k=1}^{K}(\beta_k q_{kt}), \sigma_z) 
+z_t & \sim Normal(f(z_{t-lag}) + \sum_{k=1}^{K}(\beta_k q_{kt}), \sigma_z) 
 \end{align*}
 
 
@@ -770,7 +770,7 @@ background-image: url('./ESA_slidedeck_files/figure-html/complexity-1.svg')
 
 \begin{align*}
 \mathbb{E}(\boldsymbol{Y_t}|\boldsymbol{X_t}, \boldsymbol{Q_t}) & = g^{-1}(\alpha + \sum_{j=1}^{J}f(x_{jt}) + Zz_t) \\
-z_t & \sim Normal(\sum_{k=1}^{K}f(q_{kt}), \sigma_z) 
+z_t & \sim Normal(f(z_{t-lag}) + \sum_{k=1}^{K}f(q_{kt}), \sigma_z) 
 \end{align*}
 
 
@@ -833,7 +833,7 @@ model <- mvgam(
 
 ## Produce all `Stan` code and objects
 ```{r eval=FALSE}
-code(model)
+stancode(model)
 ```
 .small[
 ```{r echo=FALSE}
@@ -889,4 +889,4 @@ background-size: contain
 
 class: inverse middle center big-subsection
 
-# Live code example
+# Live code examples
