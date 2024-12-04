@@ -55,10 +55,15 @@ update.packages(ask = FALSE, checkBuilt = TRUE)
 
 # packages to install for the course
 pkgs <- c("tidyverse", "gratia", "ggplot2",
-          "marginaleffects", "janitor", "mvgam")
+          "marginaleffects", "janitor"
 
 # install packages
 install.packages(pkgs)
+```
+
+We will be using the latest development version of `mvgam`, as it has several nice features that haven't quite made it to **CRAN** yet. You can install this version using:
+```r
+devtools::install_github("nicholasjclark/mvgam")
 ```
 
 ### INSTALLING AND CHECKING STAN
