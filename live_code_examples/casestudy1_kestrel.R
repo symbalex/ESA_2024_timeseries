@@ -16,7 +16,7 @@ hist_theme = function(){
         axis.text.y = element_blank())
 }
 
-# Load the annual American kestrel, Falco sparverius, abundance time series in
+# Load the annual American kestrel, Falco sparverius, abundance time series
 # taken in British Columbia, Canada. These data have been collected
 # annually, corrected for changes in observer coverage and detectability,
 # and logged. They can be found in the MARSS package
