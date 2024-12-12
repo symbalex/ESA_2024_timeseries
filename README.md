@@ -61,9 +61,16 @@ pkgs <- c("tidyverse", "gratia", "ggplot2",
 install.packages(pkgs)
 ```
 
+RTools or another form of compiler is needed to build compiled packages, particularly if you are on a Windows machine. Visit the [Rtools installation site](https://cran.r-project.org/bin/windows/Rtools/) for more details.
+
 We will be using the latest development version of `mvgam`, as it has several nice features that haven't quite made it to **CRAN** yet. You can install this version using:
 ```r
 devtools::install_github("nicholasjclark/mvgam")
+```
+
+If the above fails, you can just as easily stick with the **CRAN** version
+```r
+install.packages('mvgam')
 ```
 
 ### INSTALLING AND CHECKING STAN
