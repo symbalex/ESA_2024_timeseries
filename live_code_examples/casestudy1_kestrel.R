@@ -91,10 +91,36 @@ summary(data_train$adj_count)
 # 1. Inspect default priors for a GAM that includes region-specific 
 #    intercepts and a random effect of yearfac
 
+# AJ note - a random effect on yuear is kinda shit .....
+
+p <- get_mvgam_priors(
+  formula = adj_count ~ series + s(yearfac, bs = "re")
+  , data = data_train
+  , family = Gamma()
+)
+p
+
 # 2. Update the prior for the fixed effect beta coefficients to 
 #    Normal(0, 1), coded as std_normal() in Stan syntax, and fit the
 #    model
 
+mod1 <- mvgam(
+  formula = adj_count ~ series + s(yearfac, bs = "re")
+  , priors = c(prior(std_normal(), class = b)
+               , prior(exponential(2)))
+  , data = data_train
+  , newdata = data_test
+  , family = Gamma()
+  , share_obs_params = TRUE
+  , silent = 1
+  , run_model = TRUE
+)
+summary(mod1)
+summary(mod1, include_betas = F, smooth_test = F)
+
+
+coef(mod1)
+conditional_effects(mod1)
 # 3. Inspect model summaries, diagnostics and estimated parameters
 ?mvgam::`mvgam-class`
 ?mvgam::mcmc_plot.mvgam
@@ -111,12 +137,20 @@ summary(data_train$adj_count)
 
 # 6. Plot randomized quantile (Dunn-Smyth) residuals
 ?mvgam::plot.mvgam
+plot(mod1, type = "residuals", series = 1) # I think this ae converted to normal (?) - not much autocorrelation left
+plot(mod1, type = "residuals", series = 2)
+
+### AJ - can forecast - can't remember how
 
 # 7. Expand to a State-Space model with more appropriate nonlinear 
 #    temporal effects
 ?mvgam::mvgam_formulae
 ?brms::gp
 ?mvgam::AR
+
+# intead of using pslines for time, use Gaussian PRocess (i need to figure out what this is)
+# basicallhy uses time distance between all pairs of points to learn correlations\
+# brms has GP function fir this
 
 # 8. Compare the two models using Approximate Leave-One-Out 
 #    Cross-Validation
