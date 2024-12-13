@@ -131,7 +131,7 @@ We will begin the workshop by working through a bit of introductory material, wh
 The first example will use a collection of time series of annual, observer-adjusted American kestrel counts
 <br>
 <br>
-💻 [Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy2_aphids.R)
+💻 [Live code example 2](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy2_aphids.R)
 <br>
 The second example (time permitting) will analyse a set of temporal experimental data monitoring aphid abundance in crop plots
 <br>
