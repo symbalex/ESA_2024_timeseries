@@ -86,6 +86,7 @@ install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOpt
 the `check_cmdstan_toolchain()` function:
 
 ```r
+library(cmdstanr)
 check_cmdstan_toolchain()
 ```
 
@@ -133,6 +134,11 @@ The first example will use a collection of time series of annual, observer-adjus
 💻 [Live code example 1](https://github.com/nicholasjclark/ESA_2024_timeseries/blob/main/live_code_examples/casestudy2_aphids.R)
 <br>
 The second example (time permitting) will analyse a set of temporal experimental data monitoring aphid abundance in crop plots
+<br>
+<br>
+💹 [Introductory webinar on `mvgam`](https://www.youtube.com/watch?v=fzPJUW8x6DU)
+<br>
+This recorded webinar goes into some of the basic functionality of the package, using a simple example to get started
 
 ## OTHER `mvgam` RESOURCES
 
