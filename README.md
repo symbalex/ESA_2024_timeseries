@@ -162,6 +162,8 @@ been compiled:
 - <a href="https://ecogambler.netlify.app/blog/interpreting-gams/"
   target="_blank">How to interpret and report nonlinear effects from
   Generalized Additive Models</a>
+- <a href="https://www.youtube.com/watch?v=_fnDz2Bz3h8"
+  target="_blank">Introduction to Stan and Hamiltonian Monte Carlo</a>
 - <a href="https://ecogambler.netlify.app/blog/phylogenetic-smooths-mgcv/"
   target="_blank">Phylogenetic smoothing using <code>mgcv</code></a>
 - <a href="https://ecogambler.netlify.app/blog/time-varying-seasonality/"
